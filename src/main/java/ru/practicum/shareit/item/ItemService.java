@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,6 +92,9 @@ public class ItemService {
     }
 
     public List<ItemDto> search(String query) {
+        if (query.isBlank()) {
+            return Collections.emptyList();
+        }
         return itemRepository.findAll().stream()
                 .filter(i -> i.getDescription().toLowerCase().contains(query.toLowerCase())
                         || i.getName().toLowerCase().contains(query.toLowerCase()))
