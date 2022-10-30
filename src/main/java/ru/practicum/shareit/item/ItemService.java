@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.handler.exception.NotFoundException.notFoundException;
 
@@ -33,7 +34,7 @@ public class ItemService {
         return itemRepository.findAll().stream()
                 .filter(i -> i.getOwner().equals(searcher))
                 .map(itemMapper::itemMapToDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public ItemDto findById(Long id) {
@@ -95,6 +96,6 @@ public class ItemService {
                         || i.getName().toLowerCase().contains(query.toLowerCase()))
                 .filter(Item::isAvailable)
                 .map(itemMapper::itemMapToDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 }

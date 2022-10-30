@@ -2,4 +2,14 @@ package ru.practicum.shareit.handler;
 
 import java.util.List;
 
-public record ValidationErrorResponse(List<Violation> violations) {}
+public class ValidationErrorResponse {
+    private final List<Violation> violations;
+
+    public ValidationErrorResponse(List<Violation> violations) {
+        this.violations = violations;
+    }
+
+    public List<Violation> getViolations() {
+        return violations;
+    }
+}

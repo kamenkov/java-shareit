@@ -13,6 +13,7 @@ import ru.practicum.shareit.handler.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -57,7 +58,7 @@ public class ErrorHandler {
         return new ValidationErrorResponse(
                 e.getBindingResult().getFieldErrors().stream()
                         .map(error -> new Violation(error.getField(), error.getDefaultMessage()))
-                        .toList()
+                        .collect(Collectors.toList())
         );
     }
 
@@ -73,7 +74,7 @@ public class ErrorHandler {
                                     violation.getMessage()
                             );
                         }
-                ).toList();
+                ).collect(Collectors.toList());
         return new ValidationErrorResponse(violations);
     }
 

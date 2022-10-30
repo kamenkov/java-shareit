@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.handler.exception.NotFoundException.notFoundException;
 
@@ -27,7 +28,7 @@ public class UserService {
     }
 
     public List<UserDto> findAll() {
-        return userRepository.findAll().stream().map(userMapper::userMapToDto).toList();
+        return userRepository.findAll().stream().map(userMapper::userMapToDto).collect(Collectors.toList());
     }
 
     public UserDto findById(Long id) {
