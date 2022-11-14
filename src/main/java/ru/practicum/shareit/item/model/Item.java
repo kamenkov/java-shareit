@@ -1,9 +1,16 @@
 package ru.practicum.shareit.item.model;
 
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.model.AppUser;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "item")
 public class Item {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
     private String name;
@@ -12,7 +19,9 @@ public class Item {
 
     private Boolean isAvailable;
 
-    private User owner;
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private AppUser owner;
 
     public Long getId() {
         return id;
@@ -46,11 +55,11 @@ public class Item {
         isAvailable = available;
     }
 
-    public User getOwner() {
+    public AppUser getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(AppUser owner) {
         this.owner = owner;
     }
 

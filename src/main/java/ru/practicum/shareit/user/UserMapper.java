@@ -1,13 +1,13 @@
 package ru.practicum.shareit.user;
 
 import org.mapstruct.Mapper;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.AppUserDto;
+import ru.practicum.shareit.user.model.AppUser;
 
 @Mapper
 public interface UserMapper {
 
-    UserDto userMapToDto(User user);
+    AppUserDto userMapToDto(AppUser user);
 
-    User dtoMapToUser(UserDto userDto);
+    AppUser dtoMapToUser(AppUserDto userDto);
 }

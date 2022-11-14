@@ -6,7 +6,7 @@ import ru.practicum.shareit.handler.exception.ForbiddenException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.model.AppUser;
 
 import javax.validation.Valid;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public class ItemService {
     }
 
     public List<ItemDto> findAll(Long searcherId) {
-        final User searcher = userService.getById(searcherId);
+        final AppUser searcher = userService.getById(searcherId);
         return itemRepository.findAll().stream()
                 .filter(i -> i.getOwner().equals(searcher))
                 .map(itemMapper::itemMapToDto)
@@ -46,9 +46,9 @@ public class ItemService {
 
     public ItemDto create(@Valid ItemDto itemDto, Long userId) {
         Item item = itemMapper.dtoMapToItem(itemDto);
-        User owner = userService.getById(userId);
+        AppUser owner = userService.getById(userId);
         item.setOwner(owner);
-        item = itemRepository.createItem(item);
+        item = itemRepository.save(item);
         return itemMapper.itemMapToDto(item);
     }
 
@@ -67,11 +67,11 @@ public class ItemService {
         if (dtoIsAvailable != null) {
             item.setAvailable(dtoIsAvailable);
         }
-        itemRepository.updateItem(id, item);
+        itemRepository.save(item);
         return itemMapper.itemMapToDto(item);
     }
 
-    private Item getItem(Long id) {
+    public Item getItem(Long id) {
         return itemRepository
                 .findById(id)
                 .orElseThrow(notFoundException(ITEM_NOT_FOUND_MESSAGE, id));
@@ -84,8 +84,8 @@ public class ItemService {
     }
 
     private void validateOwner(Long id, Long userId, Item item) {
-        User requester = userService.getById(userId);
-        final User owner = item.getOwner();
+        AppUser requester = userService.getById(userId);
+        final AppUser owner = item.getOwner();
         if (owner != null && !owner.equals(requester)) {
             throw new ForbiddenException("User {0} is not owner of this item {1}", userId, id);
         }

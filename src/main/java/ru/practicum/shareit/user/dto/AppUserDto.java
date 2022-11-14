@@ -2,7 +2,7 @@ package ru.practicum.shareit.user.dto;
 
 import javax.validation.constraints.Email;
 
-public class UserDto {
+public class AppUserDto {
 
     private Long id;
     private String name;

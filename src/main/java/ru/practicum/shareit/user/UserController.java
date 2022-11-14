@@ -2,7 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.AppUserDto;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -18,22 +18,22 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> findAll() {
+    public List<AppUserDto> findAll() {
         return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    public UserDto findById(@PathVariable Long id) {
+    public AppUserDto findById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public UserDto create(@NotNull @RequestBody UserDto userDto) {
+    public AppUserDto create(@NotNull @RequestBody AppUserDto userDto) {
         return userService.create(userDto);
     }
 
     @PatchMapping("/{id}")
-    public UserDto update(@PathVariable Long id, @NotNull @RequestBody UserDto userDto) {
+    public AppUserDto update(@PathVariable Long id, @NotNull @RequestBody AppUserDto userDto) {
         return userService.update(id, userDto);
     }
 
