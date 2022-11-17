@@ -77,4 +77,15 @@ public class Item {
     public int hashCode() {
         return getId() != null ? getId().hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", isAvailable=" + isAvailable +
+                ", owner=" + owner +
+                '}';
+    }
 }

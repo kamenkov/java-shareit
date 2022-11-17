@@ -90,4 +90,16 @@ public class Booking {
     public int hashCode() {
         return getId() != null ? getId().hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "id=" + id +
+                ", booker=" + booker +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", item=" + item +
+                ", status=" + status +
+                '}';
+    }
 }

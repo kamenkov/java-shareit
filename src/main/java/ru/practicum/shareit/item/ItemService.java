@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.handler.exception.ForbiddenException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -22,25 +25,46 @@ public class ItemService {
     public static final String ITEM_NOT_FOUND_MESSAGE = "Item {0} not found";
     private final ItemMapper itemMapper;
     private final UserService userService;
+    private final BookingService bookingService;
+    private final CommentService commentService;
     private final ItemRepository itemRepository;
 
-    public ItemService(ItemMapper itemMapper, UserService userService, ItemRepository itemRepository) {
+    public ItemService(ItemMapper itemMapper,
+                       UserService userService,
+                       @Lazy BookingService bookingService,
+                       @Lazy CommentService commentService,
+                       ItemRepository itemRepository) {
         this.itemMapper = itemMapper;
         this.userService = userService;
+        this.bookingService = bookingService;
+        this.commentService = commentService;
         this.itemRepository = itemRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<ItemDto> findAll(Long searcherId) {
         final AppUser searcher = userService.getById(searcherId);
-        return itemRepository.findAll().stream()
+        List<ItemDto> itemDtos = itemRepository.findAll().stream()
                 .filter(i -> i.getOwner().equals(searcher))
                 .map(itemMapper::itemMapToDto)
                 .collect(Collectors.toList());
+        for (ItemDto itemDto : itemDtos) {
+            itemDto.setLastBooking(bookingService.getLastBooking(itemDto.getId()));
+            itemDto.setNextBooking(bookingService.getNextBooking(itemDto.getId()));
+            itemDto.setComments(commentService.getCommentsForItem(itemDto.getId()));
+        }
+        return itemDtos;
     }
 
-    public ItemDto findById(Long id) {
+    public ItemDto findById(Long searcherId, Long id) {
         final Item item = getItem(id);
-        return itemMapper.itemMapToDto(item);
+        ItemDto itemDto = itemMapper.itemMapToDto(item);
+        if (item.getOwner().getId().equals(searcherId)) {
+            itemDto.setLastBooking(bookingService.getLastBooking(itemDto.getId()));
+            itemDto.setNextBooking(bookingService.getNextBooking(itemDto.getId()));
+        }
+        itemDto.setComments(commentService.getCommentsForItem(itemDto.getId()));
+        return itemDto;
     }
 
 

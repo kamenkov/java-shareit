@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.model.RequestState;
 import ru.practicum.shareit.user.UserService;
 
 import javax.validation.constraints.NotNull;
@@ -30,13 +29,13 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> findAll(@RequestHeader(X_LATER_USER_ID) long userId,
-                                    @RequestParam(name = "state", defaultValue = "ALL") RequestState state) {
+                                    @RequestParam(name = "state", defaultValue = "ALL") String state) {
         return bookingService.findAll(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findAllForOwner(@RequestHeader(X_LATER_USER_ID) long userId,
-                                            @RequestParam(name = "state", defaultValue = "ALL") RequestState state) {
+                                            @RequestParam(name = "state", defaultValue = "ALL") String state) {
         return bookingService.findAllForOwner(userId, state);
     }
 
