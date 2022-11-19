@@ -13,14 +13,17 @@ public class Item {
     @Column(nullable = false)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false)
     private Boolean isAvailable;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private AppUser owner;
 
     public Long getId() {

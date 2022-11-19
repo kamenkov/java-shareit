@@ -15,15 +15,16 @@ public class Booking {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private AppUser booker;
 
+    @Column(nullable = false)
     private LocalDateTime startDate;
-
+    @Column(nullable = false)
     private LocalDateTime endDate;
 
     @ManyToOne
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
     private BookingState status;

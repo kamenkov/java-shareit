@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.user.UserService;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -14,12 +13,9 @@ public class BookingController {
 
     private static final String X_LATER_USER_ID = "X-Sharer-User-Id";
     private final BookingService bookingService;
-    private final UserService userService;
 
-    public BookingController(BookingService bookingService,
-                             UserService userService) {
+    public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
-        this.userService = userService;
     }
 
     @GetMapping("/{id}")

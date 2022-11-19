@@ -93,29 +93,35 @@ public class BookingService {
             RequestState state = RequestState.valueOf(stateString);
             switch (state) {
                 case PAST:
-                    return bookingRepository.findBookingsByBookerAndEndDateIsBefore(user, LocalDateTime.now(), END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByBookerAndEndDateIsBefore(user,
+                                    LocalDateTime.now(),
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case FUTURE:
-                    return bookingRepository.findBookingsByBookerAndStartDateIsAfter(user, LocalDateTime.now(), END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByBookerAndStartDateIsAfter(user,
+                                    LocalDateTime.now(),
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case CURRENT:
-                    return bookingRepository.findBookingsByBookerAndStartDateIsBeforeAndEndDateIsAfter(
-                                    user, LocalDateTime.now(), LocalDateTime.now(), END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByBookerAndStartDateIsBeforeAndEndDateIsAfter(user,
+                                    LocalDateTime.now(),
+                                    LocalDateTime.now(),
+                                    END_DATE_DESC_SORT
+                            ).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case WAITING:
-                    return bookingRepository.findBookingsByBookerAndStatus(user, BookingState.WAITING, END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByBookerAndStatus(user,
+                                    BookingState.WAITING,
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case REJECTED:
-                    return bookingRepository.findBookingsByBookerAndStatus(user, BookingState.REJECTED, END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByBookerAndStatus(user,
+                                    BookingState.REJECTED,
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 default:
@@ -134,29 +140,34 @@ public class BookingService {
             RequestState state = RequestState.valueOf(stateString);
             switch (state) {
                 case PAST:
-                    return bookingRepository.findBookingsByItem_OwnerAndEndDateIsBefore(user, LocalDateTime.now(), END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByItem_OwnerAndEndDateIsBefore(user,
+                                    LocalDateTime.now(),
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case FUTURE:
-                    return bookingRepository.findBookingsByItem_OwnerAndStartDateIsAfter(user, LocalDateTime.now(), END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByItem_OwnerAndStartDateIsAfter(user,
+                                    LocalDateTime.now(),
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case CURRENT:
-                    return bookingRepository.findBookingsByItem_OwnerAndStartDateIsBeforeAndEndDateIsAfter(
-                                    user, LocalDateTime.now(), LocalDateTime.now(), END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByItem_OwnerAndStartDateIsBeforeAndEndDateIsAfter(user,
+                                    LocalDateTime.now(),
+                                    LocalDateTime.now(),
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case WAITING:
-                    return bookingRepository.findBookingsByItem_OwnerAndStatus(user, BookingState.WAITING, END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByItem_OwnerAndStatus(user,
+                                    BookingState.WAITING,
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 case REJECTED:
-                    return bookingRepository.findBookingsByItem_OwnerAndStatus(user, BookingState.REJECTED, END_DATE_DESC_SORT)
-                            .stream()
+                    return bookingRepository.findBookingsByItem_OwnerAndStatus(user,
+                                    BookingState.REJECTED,
+                                    END_DATE_DESC_SORT).stream()
                             .map(bookingMapper::bookingMapToDto)
                             .collect(Collectors.toList());
                 default:
@@ -170,7 +181,8 @@ public class BookingService {
     }
 
     public boolean isUsersBookedItem(AppUser user, Item item) {
-        return bookingRepository.countBookingsByBookerAndItemAndStatusAndEndDateIsBefore(user, item, BookingState.APPROVED, LocalDateTime.now()) > 0;
+        return bookingRepository.countBookingsByBookerAndItemAndStatusAndEndDateIsBefore(
+                user, item, BookingState.APPROVED, LocalDateTime.now()) > 0;
     }
 
     @Transactional(readOnly = true)

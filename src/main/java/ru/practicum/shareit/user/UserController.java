@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.AppUserDto;
 
@@ -17,11 +18,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Transactional(readOnly = true)
     @GetMapping
     public List<AppUserDto> findAll() {
         return userService.findAll();
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/{id}")
     public AppUserDto findById(@PathVariable Long id) {
         return userService.findById(id);
