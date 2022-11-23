@@ -1,9 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import ru.practicum.shareit.booking.dto.BookingForItemDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class ItemDto {
 
@@ -18,6 +20,12 @@ public class ItemDto {
     @NotNull
     @JsonProperty("available")
     private Boolean isAvailable;
+
+    private BookingForItemDto lastBooking;
+
+    private BookingForItemDto nextBooking;
+
+    List<CommentResponseDto> comments;
 
     public Long getId() {
         return id;
@@ -49,6 +57,30 @@ public class ItemDto {
 
     public void setAvailable(Boolean available) {
         isAvailable = available;
+    }
+
+    public BookingForItemDto getLastBooking() {
+        return lastBooking;
+    }
+
+    public void setLastBooking(BookingForItemDto lastBooking) {
+        this.lastBooking = lastBooking;
+    }
+
+    public BookingForItemDto getNextBooking() {
+        return nextBooking;
+    }
+
+    public void setNextBooking(BookingForItemDto nextBooking) {
+        this.nextBooking = nextBooking;
+    }
+
+    public List<CommentResponseDto> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentResponseDto> comments) {
+        this.comments = comments;
     }
 }
 

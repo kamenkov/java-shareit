@@ -1,11 +1,19 @@
 package ru.practicum.shareit.user.model;
 
-public class User {
+import javax.persistence.*;
 
+@Entity
+@Table(name = "app_user")
+public class AppUser {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
     public Long getId() {
@@ -37,7 +45,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        User user = (User) o;
+        AppUser user = (AppUser) o;
 
         return getId() != null ? getId().equals(user.getId()) : user.getId() == null;
     }
