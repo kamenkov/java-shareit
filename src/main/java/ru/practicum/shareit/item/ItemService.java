@@ -1,17 +1,24 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.handler.exception.ForbiddenException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemForItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestService;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.AppUser;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,24 +34,29 @@ public class ItemService {
     private final UserService userService;
     private final BookingService bookingService;
     private final CommentService commentService;
+
+    private final ItemRequestService itemRequestService;
     private final ItemRepository itemRepository;
 
     public ItemService(ItemMapper itemMapper,
                        UserService userService,
                        @Lazy BookingService bookingService,
                        @Lazy CommentService commentService,
+                       @Lazy ItemRequestService itemRequestService,
                        ItemRepository itemRepository) {
         this.itemMapper = itemMapper;
         this.userService = userService;
         this.bookingService = bookingService;
         this.commentService = commentService;
+        this.itemRequestService = itemRequestService;
         this.itemRepository = itemRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<ItemDto> findAll(Long searcherId) {
+    public List<ItemDto> findAll(Long searcherId, @PositiveOrZero int from, @Positive int size) {
         final AppUser searcher = userService.getById(searcherId);
-        List<ItemDto> itemDtos = itemRepository.findAll().stream()
+        final Pageable pageable = PageRequest.of(from / size, size);
+        List<ItemDto> itemDtos = itemRepository.findAll(pageable).stream()
                 .filter(i -> i.getOwner().equals(searcher))
                 .map(itemMapper::itemMapToDto)
                 .collect(Collectors.toList());
@@ -72,6 +84,11 @@ public class ItemService {
         Item item = itemMapper.dtoMapToItem(itemDto);
         AppUser owner = userService.getById(userId);
         item.setOwner(owner);
+        final Long requestId = itemDto.getRequestId();
+        if (requestId != null) {
+            ItemRequest itemRequest = itemRequestService.getById(requestId);
+            item.setItemRequest(itemRequest);
+        }
         item = itemRepository.save(item);
         return itemMapper.itemMapToDto(item);
     }
@@ -107,23 +124,30 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
+    public List<ItemDto> search(String query, @PositiveOrZero int from, @Positive int size) {
+        if (query.isBlank()) {
+            return Collections.emptyList();
+        }
+        final Pageable pageable = PageRequest.of(from / size, size);
+        return itemRepository.findAll(pageable).stream()
+                .filter(i -> i.getDescription().toLowerCase().contains(query.toLowerCase())
+                        || i.getName().toLowerCase().contains(query.toLowerCase()))
+                .filter(Item::isAvailable)
+                .map(itemMapper::itemMapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemForItemRequestDto> findByRequest(Long itemRequestId) {
+        return itemRepository.findAllByItemRequest_Id(itemRequestId).stream()
+                .map(itemMapper::itemMapToForItemRequestDto)
+                .collect(Collectors.toList());
+    }
+
     private void validateOwner(Long id, Long userId, Item item) {
         AppUser requester = userService.getById(userId);
         final AppUser owner = item.getOwner();
         if (owner != null && !owner.equals(requester)) {
             throw new ForbiddenException("User {0} is not owner of this item {1}", userId, id);
         }
-    }
-
-    public List<ItemDto> search(String query) {
-        if (query.isBlank()) {
-            return Collections.emptyList();
-        }
-        return itemRepository.findAll().stream()
-                .filter(i -> i.getDescription().toLowerCase().contains(query.toLowerCase())
-                        || i.getName().toLowerCase().contains(query.toLowerCase()))
-                .filter(Item::isAvailable)
-                .map(itemMapper::itemMapToDto)
-                .collect(Collectors.toList());
     }
 }

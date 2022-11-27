@@ -16,7 +16,6 @@ import static ru.practicum.shareit.handler.exception.NotFoundException.notFoundE
 public class UserService {
 
     public static final String USER_NOT_FOUND_MESSAGE = "User {0} not found";
-    public static final String EMAIL_ALREADY_REGISTERED_MESSAGE = "User with email: %s already registered";
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -31,9 +30,7 @@ public class UserService {
     }
 
     public AppUserDto findById(Long id) {
-        final AppUser user = userRepository
-                .findById(id)
-                .orElseThrow(notFoundException(USER_NOT_FOUND_MESSAGE, id));
+        final AppUser user = getById(id);
         return userMapper.userMapToDto(user);
     }
 
