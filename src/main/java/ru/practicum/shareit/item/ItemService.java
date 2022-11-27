@@ -7,7 +7,10 @@ import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.handler.exception.ForbiddenException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemForItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestService;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.AppUser;
 
@@ -27,17 +30,21 @@ public class ItemService {
     private final UserService userService;
     private final BookingService bookingService;
     private final CommentService commentService;
+
+    private final ItemRequestService itemRequestService;
     private final ItemRepository itemRepository;
 
     public ItemService(ItemMapper itemMapper,
                        UserService userService,
                        @Lazy BookingService bookingService,
                        @Lazy CommentService commentService,
+                       @Lazy ItemRequestService itemRequestService,
                        ItemRepository itemRepository) {
         this.itemMapper = itemMapper;
         this.userService = userService;
         this.bookingService = bookingService;
         this.commentService = commentService;
+        this.itemRequestService = itemRequestService;
         this.itemRepository = itemRepository;
     }
 
@@ -72,6 +79,11 @@ public class ItemService {
         Item item = itemMapper.dtoMapToItem(itemDto);
         AppUser owner = userService.getById(userId);
         item.setOwner(owner);
+        final Long requestId = itemDto.getRequestId();
+        if (requestId != null) {
+            ItemRequest itemRequest = itemRequestService.getById(requestId);
+            item.setItemRequest(itemRequest);
+        }
         item = itemRepository.save(item);
         return itemMapper.itemMapToDto(item);
     }
@@ -107,14 +119,6 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
-    private void validateOwner(Long id, Long userId, Item item) {
-        AppUser requester = userService.getById(userId);
-        final AppUser owner = item.getOwner();
-        if (owner != null && !owner.equals(requester)) {
-            throw new ForbiddenException("User {0} is not owner of this item {1}", userId, id);
-        }
-    }
-
     public List<ItemDto> search(String query) {
         if (query.isBlank()) {
             return Collections.emptyList();
@@ -125,5 +129,19 @@ public class ItemService {
                 .filter(Item::isAvailable)
                 .map(itemMapper::itemMapToDto)
                 .collect(Collectors.toList());
+    }
+
+    public List<ItemForItemRequestDto> findByRequest(Long itemRequestId) {
+        return itemRepository.findAllByItemRequest_Id(itemRequestId).stream()
+                .map(itemMapper::itemMapToForItemRequestDto)
+                .collect(Collectors.toList());
+    }
+
+    private void validateOwner(Long id, Long userId, Item item) {
+        AppUser requester = userService.getById(userId);
+        final AppUser owner = item.getOwner();
+        if (owner != null && !owner.equals(requester)) {
+            throw new ForbiddenException("User {0} is not owner of this item {1}", userId, id);
+        }
     }
 }

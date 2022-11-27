@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.model;
 
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.AppUser;
 
 import javax.persistence.*;
@@ -25,6 +26,18 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private AppUser owner;
+
+    @ManyToOne
+    @JoinColumn(name = "item_request_id")
+    private ItemRequest itemRequest;
+
+    public ItemRequest getItemRequest() {
+        return itemRequest;
+    }
+
+    public void setItemRequest(ItemRequest itemRequest) {
+        this.itemRequest = itemRequest;
+    }
 
     public Long getId() {
         return id;
