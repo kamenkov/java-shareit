@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -15,6 +17,8 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.AppUser;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,9 +53,10 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemDto> findAll(Long searcherId) {
+    public List<ItemDto> findAll(Long searcherId, @PositiveOrZero int from, @Positive int size) {
         final AppUser searcher = userService.getById(searcherId);
-        List<ItemDto> itemDtos = itemRepository.findAll().stream()
+        final Pageable pageable = PageRequest.of(from / size, size);
+        List<ItemDto> itemDtos = itemRepository.findAll(pageable).stream()
                 .filter(i -> i.getOwner().equals(searcher))
                 .map(itemMapper::itemMapToDto)
                 .collect(Collectors.toList());
@@ -119,11 +124,12 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
-    public List<ItemDto> search(String query) {
+    public List<ItemDto> search(String query, @PositiveOrZero int from, @Positive int size) {
         if (query.isBlank()) {
             return Collections.emptyList();
         }
-        return itemRepository.findAll().stream()
+        final Pageable pageable = PageRequest.of(from / size, size);
+        return itemRepository.findAll(pageable).stream()
                 .filter(i -> i.getDescription().toLowerCase().contains(query.toLowerCase())
                         || i.getName().toLowerCase().contains(query.toLowerCase()))
                 .filter(Item::isAvailable)

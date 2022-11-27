@@ -29,8 +29,8 @@ public class ItemRequestController {
     @Transactional(readOnly = true)
     @GetMapping("/all")
     public List<ItemRequestDto> findOtherRequests(@RequestHeader(X_LATER_USER_ID) long userId,
-                                                  @RequestParam(name = "from", defaultValue = "0") String from,
-                                                  @RequestParam(name = "size", defaultValue = "20") String size) {
+                                                  @RequestParam(name = "from", defaultValue = "0") int from,
+                                                  @RequestParam(name = "size", defaultValue = "20") int size) {
         return itemRequestService.findOtherRequests(userId, from, size);
     }
 

@@ -26,8 +26,10 @@ public class ItemController {
 
     @Transactional(readOnly = true)
     @GetMapping
-    public List<ItemDto> findAll(@NotNull @RequestHeader(X_LATER_USER_ID) long userId) {
-        return itemService.findAll(userId);
+    public List<ItemDto> findAll(@NotNull @RequestHeader(X_LATER_USER_ID) long userId,
+                                 @RequestParam(name = "from", defaultValue = "0") int from,
+                                 @RequestParam(name = "size", defaultValue = "20") int size) {
+        return itemService.findAll(userId, from, size);
     }
 
     @Transactional(readOnly = true)
@@ -39,8 +41,10 @@ public class ItemController {
 
     @Transactional(readOnly = true)
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam(name = "text") String query) {
-        return itemService.search(query);
+    public List<ItemDto> search(@RequestParam(name = "text") String query,
+                                @RequestParam(name = "from", defaultValue = "0") int from,
+                                @RequestParam(name = "size", defaultValue = "20") int size) {
+        return itemService.search(query, from, size);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,

@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +19,10 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.AppUser;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.handler.exception.NotFoundException.notFoundException;
 
@@ -87,93 +90,95 @@ public class BookingService {
         return bookingMapper.bookingMapToDto(booking);
     }
 
-    public List<BookingDto> findAll(long userId, String stateString) {
+    public List<BookingDto> findAll(long userId, String stateString, @PositiveOrZero int from, @Positive int size) {
         AppUser user = userService.getById(userId);
+        Pageable pageable = PageRequest.of(from / size, size, END_DATE_DESC_SORT);
         try {
             RequestState state = RequestState.valueOf(stateString);
             switch (state) {
                 case PAST:
                     return bookingRepository.findBookingsByBookerAndEndDateIsBefore(user,
                                     LocalDateTime.now(),
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case FUTURE:
                     return bookingRepository.findBookingsByBookerAndStartDateIsAfter(user,
                                     LocalDateTime.now(),
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case CURRENT:
                     return bookingRepository.findBookingsByBookerAndStartDateIsBeforeAndEndDateIsAfter(user,
                                     LocalDateTime.now(),
                                     LocalDateTime.now(),
-                                    END_DATE_DESC_SORT
-                            ).stream()
+                                    pageable
+                            )
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case WAITING:
                     return bookingRepository.findBookingsByBookerAndStatus(user,
                                     BookingState.WAITING,
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case REJECTED:
                     return bookingRepository.findBookingsByBookerAndStatus(user,
                                     BookingState.REJECTED,
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 default:
-                    return bookingRepository.findBookingsByBooker(user, END_DATE_DESC_SORT).stream()
+                    return bookingRepository.findBookingsByBooker(user, pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
             }
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unknown state: " + stateString);
         }
     }
 
-    public List<BookingDto> findAllForOwner(long userId, String stateString) {
+    public List<BookingDto> findAllForOwner(long userId, String stateString, @PositiveOrZero int from, @Positive int size) {
         AppUser user = userService.getById(userId);
+        Pageable pageable = PageRequest.of(from / size, size, END_DATE_DESC_SORT);
         try {
             RequestState state = RequestState.valueOf(stateString);
             switch (state) {
                 case PAST:
                     return bookingRepository.findBookingsByItem_OwnerAndEndDateIsBefore(user,
                                     LocalDateTime.now(),
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case FUTURE:
                     return bookingRepository.findBookingsByItem_OwnerAndStartDateIsAfter(user,
                                     LocalDateTime.now(),
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case CURRENT:
                     return bookingRepository.findBookingsByItem_OwnerAndStartDateIsBeforeAndEndDateIsAfter(user,
                                     LocalDateTime.now(),
                                     LocalDateTime.now(),
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case WAITING:
                     return bookingRepository.findBookingsByItem_OwnerAndStatus(user,
                                     BookingState.WAITING,
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 case REJECTED:
                     return bookingRepository.findBookingsByItem_OwnerAndStatus(user,
                                     BookingState.REJECTED,
-                                    END_DATE_DESC_SORT).stream()
+                                    pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
                 default:
-                    return bookingRepository.findBookingsByItem_Owner(user, END_DATE_DESC_SORT).stream()
+                    return bookingRepository.findBookingsByItem_Owner(user, pageable)
                             .map(bookingMapper::bookingMapToDto)
-                            .collect(Collectors.toList());
+                            .getContent();
             }
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unknown state: " + stateString);

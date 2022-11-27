@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,6 +13,8 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.AppUser;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,27 +57,19 @@ public class ItemRequestService {
         return itemRequestDtos;
     }
 
-    public List<ItemRequestDto> findOtherRequests(long userId, String fromString, String sizeString) {
-        try {
-            int from = Integer.parseInt(fromString);
-            int size = Integer.parseInt(sizeString);
-            Pageable pageable = PageRequest.of(from, size).withSort(CREATED_DESC_SORT);
-            AppUser user = userService.getById(userId);
-            final List<ItemRequestDto> itemRequestDtos = itemRequestRepository.findAllByCreatorNot(user, pageable)
-                    .stream()
-                    .map(itemRequestMapper::itemRequestMapToDto)
-                    .collect(Collectors.toList());
-            for (ItemRequestDto itemRequestDto : itemRequestDtos) {
-                itemRequestDto.setItems(itemService.findByRequest(itemRequestDto.getId()));
-            }
-            return itemRequestDtos;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("From and Size must be a numbers.");
+    public List<ItemRequestDto> findOtherRequests(long userId, @PositiveOrZero int from, @Positive int size) {
+        Pageable pageable = PageRequest.of(from / size, size).withSort(CREATED_DESC_SORT);
+        AppUser user = userService.getById(userId);
+        final Page<ItemRequestDto> itemRequestDtos = itemRequestRepository.findAllByCreatorNot(user, pageable)
+                .map(itemRequestMapper::itemRequestMapToDto);
+        for (ItemRequestDto itemRequestDto : itemRequestDtos) {
+            itemRequestDto.setItems(itemService.findByRequest(itemRequestDto.getId()));
         }
+        return itemRequestDtos.getContent();
     }
 
     public ItemRequestDto findById(long userId, Long id) {
-        AppUser creator = userService.getById(userId);
+        userService.getById(userId);
         ItemRequest itemRequest = getById(id);
         ItemRequestDto itemRequestDto = itemRequestMapper.itemRequestMapToDto(itemRequest);
         itemRequestDto.setItems(itemService.findByRequest(itemRequestDto.getId()));
