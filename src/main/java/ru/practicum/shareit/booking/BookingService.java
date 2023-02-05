@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -59,7 +58,7 @@ public class BookingService {
             throw new IllegalArgumentException("Item unavailable");
         }
         if (item.getOwner().equals(booker)) {
-            throw new NotFoundException("asdf", 123);
+            throw new NotFoundException("Booker cannot book his own item {0}", item.getId());
         }
         booking.setItem(item);
         booking.setStatus(BookingState.WAITING);
@@ -85,7 +84,7 @@ public class BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(notFoundException(ItemService.ITEM_NOT_FOUND_MESSAGE, bookingId));
         if (!booking.getItem().getOwner().getId().equals(userId) && !booking.getBooker().getId().equals(userId)) {
-            throw new NotFoundException("not allowed", userId);
+            throw new NotFoundException("Not allowed", userId);
         }
         return bookingMapper.bookingMapToDto(booking);
     }

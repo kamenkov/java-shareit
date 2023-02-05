@@ -14,5 +14,6 @@ import java.util.List;
 public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> {
 
     List<ItemRequest> findAllByCreator(AppUser user, Sort sort);
+
     Page<ItemRequest> findAllByCreatorNot(AppUser user, Pageable pageable);
 }
