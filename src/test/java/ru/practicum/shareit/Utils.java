@@ -1,14 +1,11 @@
 package ru.practicum.shareit;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.AppUserDto;
 import ru.practicum.shareit.user.model.AppUser;
 
@@ -30,6 +27,20 @@ public class Utils {
         userDto.setName("Name" + id);
         userDto.setEmail("email" + id + "@mail.ru");
         return userDto;
+    }
+
+    public static Comment getComment(AppUser author, String text, Item item) {
+        Comment comment = new Comment();
+        comment.setAuthor(author);
+        comment.setText(text);
+        comment.setItem(item);
+        return comment;
+    }
+
+    public static CommentRequestDto getCommentRequestDto(String text) {
+        CommentRequestDto commentRequestDto = new CommentRequestDto();
+        commentRequestDto.setText(text);
+        return commentRequestDto;
     }
 
     public static Item getItem(Long id, AppUser owner) {

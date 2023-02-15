@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.Utils;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -17,9 +18,12 @@ import ru.practicum.shareit.handler.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.model.AppUser;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,10 +48,14 @@ class BookingServiceTest {
     @Autowired
     BookingService bookingService;
 
+    AppUser user;
+    Item item;
     Booking booking;
 
     @BeforeEach
     void beforeEach() {
+        user = Utils.getUser(1L);
+        item = Utils.getItem(1L, user);
         Mockito.when(mockUserService.getById(-1L)).thenThrow(NotFoundException.class);
         Mockito.when(mockUserService.getById(1L)).thenReturn(Utils.getUser(1L));
         Mockito.when(mockUserService.getById(2L)).thenReturn(Utils.getUser(2L));
@@ -59,9 +67,13 @@ class BookingServiceTest {
                 Utils.getItem(1L, Utils.getUser(1L)),
                 Utils.getUser(2L)
         );
-        Mockito.when(mockBookingRepository.findById(1L)).thenReturn(Optional.of(
-                booking)
+        Mockito.when(mockBookingRepository.findById(1L)).thenReturn(
+                Optional.of(booking)
         );
+        Mockito.when(mockBookingRepository.findBookingsByBooker(Mockito.any(AppUser.class), Mockito.any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository.findBookingsByItem_Owner(Mockito.any(AppUser.class), Mockito.any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
         Mockito.when(mockBookingRepository.save(booking)).thenReturn(booking);
     }
 
@@ -103,31 +115,39 @@ class BookingServiceTest {
     }
 
     @Test
-    void testFindAll() {
+    void findAll() {
         assertThrows(NotFoundException.class, () -> bookingService.findAll(-1L, "ALL", 1, 3));
         bookingService.findAll(1L, "ALL", 1, 3);
-        verify(mockUserService, times(1)).getById(anyLong());
-        verify(mockBookingRepository, times(1)).findBookingsByBooker(any(), any());
-    }
-
-
-    @Test
-    void findAll() {
+        verify(mockUserService, times(2)).getById(anyLong());
+        verify(mockBookingRepository, times(1)).findBookingsByBooker(eq(user), any());
     }
 
     @Test
     void findAllForOwner() {
+        assertThrows(NotFoundException.class, () -> bookingService.findAllForOwner(-1L, "ALL", 1, 3));
+        bookingService.findAllForOwner(1L, "ALL", 1, 3);
+        verify(mockUserService, times(2)).getById(anyLong());
+        verify(mockBookingRepository, times(1)).findBookingsByItem_Owner(eq(user), any());
     }
 
     @Test
     void isUsersBookedItem() {
+        bookingService.isUsersBookedItem(user, item);
+        verify(mockBookingRepository, times(1))
+                .countBookingsByBookerAndItemAndStatusAndEndDateIsBefore(eq(user), eq(item), any(), any());
     }
 
     @Test
     void getLastBooking() {
+        bookingService.getLastBooking(1L);
+        verify(mockBookingRepository, times(1))
+                .findFirstByItem_IdAndEndDateIsBefore(eq(1L), any());
     }
 
     @Test
     void getNextBooking() {
+        bookingService.getNextBooking(1L);
+        verify(mockBookingRepository, times(1))
+                .findFirstByItem_IdAndStartDateIsAfter(eq(1L), any());
     }
 }

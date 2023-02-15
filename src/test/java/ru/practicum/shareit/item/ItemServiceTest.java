@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.Utils;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.handler.exception.ForbiddenException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
 
 @DirtiesContext(classMode = AFTER_CLASS)
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +50,7 @@ class ItemServiceTest {
 
     AppUser user;
     Item item;
+    Booking booking;
 
     @BeforeEach
     void init() {
@@ -68,7 +68,13 @@ class ItemServiceTest {
         Mockito.when(mockItemRepository.findAll(Mockito.any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
         Mockito.when(mockItemRepository.save(item)).thenReturn(item);
-        Mockito.when(mockBookingRepository.findBookingsByBooker(Mockito.any(AppUser.class), Mockito.any(Pageable.class)));
+        booking = Utils.getBooking(
+                1L,
+                Utils.getItem(1L, Utils.getUser(1L)),
+                Utils.getUser(2L)
+        );
+        Mockito.when(mockBookingRepository.findBookingsByBooker(Mockito.any(AppUser.class), Mockito.any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
     }
 
     @Test
