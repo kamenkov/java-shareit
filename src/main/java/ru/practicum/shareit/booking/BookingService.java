@@ -70,7 +70,7 @@ public class BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(notFoundException(ItemService.ITEM_NOT_FOUND_MESSAGE, bookingId));
         if (!booking.getItem().getOwner().getId().equals(ownerId)) {
-            throw new NotFoundException("not allowed", ownerId);
+            throw new NotFoundException("Not allowed", ownerId);
         }
         if (booking.getStatus().equals(BookingState.APPROVED)) {
             throw new IllegalArgumentException("Already approved");

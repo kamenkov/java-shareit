@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.Utils;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.handler.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemService;
@@ -72,7 +73,31 @@ class BookingServiceTest {
         );
         Mockito.when(mockBookingRepository.findBookingsByBooker(Mockito.any(AppUser.class), Mockito.any()))
                 .thenReturn(new PageImpl<>(List.of(booking)));
-        Mockito.when(mockBookingRepository.findBookingsByItem_Owner(Mockito.any(AppUser.class), Mockito.any()))
+        Mockito.when(mockBookingRepository
+                        .findBookingsByBookerAndEndDateIsBefore(Mockito.any(AppUser.class), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository
+                        .findBookingsByBookerAndStartDateIsAfter(Mockito.any(AppUser.class), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository
+                        .findBookingsByBookerAndStartDateIsBeforeAndEndDateIsAfter(
+                                Mockito.any(AppUser.class), any(), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository.findBookingsByBookerAndStatus(Mockito.any(AppUser.class), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository.findBookingsByItem_Owner(Mockito.any(AppUser.class), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository
+                        .findBookingsByItem_OwnerAndEndDateIsBefore(Mockito.any(AppUser.class), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository
+                        .findBookingsByItem_OwnerAndStartDateIsAfter(Mockito.any(AppUser.class), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository
+                        .findBookingsByItem_OwnerAndStartDateIsBeforeAndEndDateIsAfter(Mockito.any(AppUser.class),
+                                any(), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+        Mockito.when(mockBookingRepository.findBookingsByItem_OwnerAndStatus(Mockito.any(AppUser.class), any(), any()))
                 .thenReturn(new PageImpl<>(List.of(booking)));
         Mockito.when(mockBookingRepository.save(booking)).thenReturn(booking);
     }
@@ -111,6 +136,7 @@ class BookingServiceTest {
                 () -> bookingService.findById(-1L, 1L));
         bookingService.findById(1L, 1L);
         Mockito.verify(mockBookingRepository, times(2)).findById(anyLong());
+        Mockito.verifyNoMoreInteractions(mockBookingRepository);
 
     }
 
@@ -120,14 +146,113 @@ class BookingServiceTest {
         bookingService.findAll(1L, "ALL", 1, 3);
         verify(mockUserService, times(2)).getById(anyLong());
         verify(mockBookingRepository, times(1)).findBookingsByBooker(eq(user), any());
+        Mockito.verifyNoMoreInteractions(mockBookingRepository);
+    }
+
+    @Test
+    void findAllPast() {
+        bookingService.findAll(1L, "PAST", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByBookerAndEndDateIsBefore(eq(user), any(), any());
+        Mockito.verifyNoMoreInteractions(mockBookingRepository);
+    }
+
+    @Test
+    void findAllFuture() {
+        bookingService.findAll(1L, "FUTURE", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByBookerAndStartDateIsAfter(eq(user), any(), any());
+        Mockito.verifyNoMoreInteractions(mockBookingRepository);
+    }
+
+    @Test
+    void findAllCurrent() {
+        bookingService.findAll(1L, "CURRENT", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByBookerAndStartDateIsBeforeAndEndDateIsAfter(eq(user), any(), any(), any());
+        Mockito.verifyNoMoreInteractions(mockBookingRepository);
+    }
+
+    @Test
+    void findAllWaiting() {
+        bookingService.findAll(1L, "WAITING", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByBookerAndStatus(eq(user), eq(BookingState.WAITING), any());
+        Mockito.verifyNoMoreInteractions(mockBookingRepository);
+    }
+
+    @Test
+    void findAllRejected() {
+        bookingService.findAll(1L, "REJECTED", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByBookerAndStatus(eq(user), eq(BookingState.REJECTED), any());
+        Mockito.verifyNoMoreInteractions(mockBookingRepository);
+    }
+
+    @Test
+    void findAllWrongState() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> bookingService.findAll(1L, "WRONG", 1, 3));
     }
 
     @Test
     void findAllForOwner() {
-        assertThrows(NotFoundException.class, () -> bookingService.findAllForOwner(-1L, "ALL", 1, 3));
+        assertThrows(NotFoundException.class,
+                () -> bookingService.findAllForOwner(-1L, "ALL", 1, 3));
         bookingService.findAllForOwner(1L, "ALL", 1, 3);
         verify(mockUserService, times(2)).getById(anyLong());
         verify(mockBookingRepository, times(1)).findBookingsByItem_Owner(eq(user), any());
+    }
+
+    @Test
+    void findAllForOwnerPast() {
+        bookingService.findAllForOwner(1L, "PAST", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByItem_OwnerAndEndDateIsBefore(eq(user), any(), any());
+    }
+
+    @Test
+    void findAllForOwnerFuture() {
+        bookingService.findAllForOwner(1L, "FUTURE", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByItem_OwnerAndStartDateIsAfter(eq(user), any(), any());
+    }
+
+    @Test
+    void findAllForOwnerCurrent() {
+        bookingService.findAllForOwner(1L, "CURRENT", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByItem_OwnerAndStartDateIsBeforeAndEndDateIsAfter(eq(user), any(), any(), any());
+    }
+
+    @Test
+    void findAllForOwnerWaiting() {
+        bookingService.findAllForOwner(1L, "WAITING", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByItem_OwnerAndStatus(eq(user), eq(BookingState.WAITING), any());
+    }
+
+    @Test
+    void findAllForOwnerRejected() {
+        bookingService.findAllForOwner(1L, "REJECTED", 1, 3);
+        verify(mockUserService, times(1)).getById(anyLong());
+        verify(mockBookingRepository, times(1))
+                .findBookingsByItem_OwnerAndStatus(eq(user), eq(BookingState.REJECTED), any());
+    }
+
+    @Test
+    void findAllForOwnerWrongState() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> bookingService.findAllForOwner(1L, "WRONG", 1, 3));
     }
 
     @Test
