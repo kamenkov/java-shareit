@@ -133,7 +133,7 @@ class ItemControllerTest {
     void create() throws Exception {
         when(itemService.create(any(), anyLong())).thenReturn(itemDto);
 
-        String response = mvc.perform(post("/items/")
+        String response = mvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(itemDto))
                         .header(X_LATER_USER_ID, 1)
