@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.handler.exception.ForbiddenException;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -177,6 +178,24 @@ class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
+        verify(itemService, times(1)).update(eq(1L), any(ItemDto.class), eq(1L));
+    }
+
+    @Test
+    void update_whenUserIsInvalid_thenThrown() throws Exception {
+        when(itemService.update(anyLong(), any(), anyLong())).thenThrow(new ForbiddenException("message"));
+
+        String response = mvc.perform(patch("/items/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(itemDto))
+                        .header(X_LATER_USER_ID, 1)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals("{\"error\":\"message\"}", response);
         verify(itemService, times(1)).update(eq(1L), any(ItemDto.class), eq(1L));
     }
 
