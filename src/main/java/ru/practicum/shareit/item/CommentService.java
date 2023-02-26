@@ -38,7 +38,7 @@ public class CommentService {
         this.commentMapper = commentMapper;
     }
 
-    public CommentResponseDto addComment(Long itemId, @Valid CommentRequestDto commentDto, long userId) {
+    public CommentResponseDto addComment(Long itemId, @Valid CommentRequestDto commentDto, Long userId) {
         AppUser author = userService.getById(userId);
         Item item = itemService.getItem(itemId);
         if (!bookingService.isUsersBookedItem(author, item)) {

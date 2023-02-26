@@ -25,14 +25,18 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> findAll(@RequestHeader(X_LATER_USER_ID) long userId,
-                                    @RequestParam(name = "state", defaultValue = "ALL") String state) {
-        return bookingService.findAll(userId, state);
+                                    @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                    @RequestParam(name = "from", defaultValue = "0") int from,
+                                    @RequestParam(name = "size", defaultValue = "20") int size) {
+        return bookingService.findAll(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findAllForOwner(@RequestHeader(X_LATER_USER_ID) long userId,
-                                            @RequestParam(name = "state", defaultValue = "ALL") String state) {
-        return bookingService.findAllForOwner(userId, state);
+                                            @RequestParam(name = "state", defaultValue = "ALL") String state,
+                                            @RequestParam(name = "from", defaultValue = "0") int from,
+                                            @RequestParam(name = "size", defaultValue = "20") int size) {
+        return bookingService.findAllForOwner(userId, state, from, size);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

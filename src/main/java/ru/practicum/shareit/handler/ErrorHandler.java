@@ -7,7 +7,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.handler.exception.EmailAlreadyInUseException;
 import ru.practicum.shareit.handler.exception.ForbiddenException;
 import ru.practicum.shareit.handler.exception.NotFoundException;
 
@@ -26,15 +25,6 @@ public class ErrorHandler {
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.debug("[NOT FOUND]: {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleEmailAlreadyInUseException(final EmailAlreadyInUseException e) {
-        log.debug("[CONFLICT]: {}", e.getMessage());
-        return new ErrorResponse(
-                e.getMessage()
-        );
     }
 
     @ExceptionHandler

@@ -25,6 +25,8 @@ public class ItemDto {
 
     private BookingForItemDto nextBooking;
 
+    private Long requestId;
+
     List<CommentResponseDto> comments;
 
     public Long getId() {
@@ -73,6 +75,14 @@ public class ItemDto {
 
     public void setNextBooking(BookingForItemDto nextBooking) {
         this.nextBooking = nextBooking;
+    }
+
+    public Long getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(Long requestId) {
+        this.requestId = requestId;
     }
 
     public List<CommentResponseDto> getComments() {
