@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 @DirtiesContext(classMode = AFTER_CLASS)
@@ -65,6 +66,8 @@ class ItemServiceTest {
                 Utils.getItem(2L, user),
                 Utils.getItem(3L, user),
                 Utils.getItem(4L, user));
+        Mockito.when(mockItemRepository.findAllByOwnerIdOrderByIdAsc(eq(1L), Mockito.any(Pageable.class)))
+                .thenReturn(items);
         Mockito.when(mockItemRepository.findAll(Mockito.any(Pageable.class)))
                 .thenReturn(new PageImpl<>(items));
         Mockito.when(mockItemRepository.save(item)).thenReturn(item);
@@ -88,7 +91,7 @@ class ItemServiceTest {
     void findAll() {
         itemService.findAll(1L, 0, 10);
         Mockito.verify(mockItemRepository, Mockito.times(1))
-                .findAll(Mockito.any(Pageable.class));
+                .findAllByOwnerIdOrderByIdAsc(eq(1L), Mockito.any(Pageable.class));
         Mockito.verifyNoMoreInteractions(mockItemRepository);
     }
 
