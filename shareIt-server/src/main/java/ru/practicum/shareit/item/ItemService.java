@@ -56,8 +56,7 @@ public class ItemService {
     public List<ItemDto> findAll(Long searcherId, @PositiveOrZero int from, @Positive int size) {
         final AppUser searcher = userService.getById(searcherId);
         final Pageable pageable = PageRequest.of(from / size, size);
-        List<ItemDto> itemDtos = itemRepository.findAll(pageable).stream()
-                .filter(i -> i.getOwner().equals(searcher))
+        List<ItemDto> itemDtos = itemRepository.findAllByOwnerIdOrderByIdAsc(searcher.getId(), pageable).stream()
                 .map(itemMapper::itemMapToDto)
                 .collect(Collectors.toList());
         for (ItemDto itemDto : itemDtos) {

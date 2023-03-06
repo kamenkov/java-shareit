@@ -9,4 +9,8 @@ class ItemRepositoryTest {
     @Test
     void findAllByItemRequest_Id() {
     }
+
+    @Test
+    void findAllByOwnerIdOrderByIdAsc() {
+    }
 }
