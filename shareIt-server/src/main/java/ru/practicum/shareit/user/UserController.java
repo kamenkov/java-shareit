@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.AppUserDto;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -31,12 +30,12 @@ public class UserController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public AppUserDto create(@NotNull @RequestBody AppUserDto userDto) {
+    public AppUserDto create(@RequestBody AppUserDto userDto) {
         return userService.create(userDto);
     }
 
     @PatchMapping("/{id}")
-    public AppUserDto update(@PathVariable Long id, @NotNull @RequestBody AppUserDto userDto) {
+    public AppUserDto update(@PathVariable Long id, @RequestBody AppUserDto userDto) {
         return userService.update(id, userDto);
     }
 

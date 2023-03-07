@@ -1,27 +1,32 @@
 package ru.practicum.shareit.booking.dto;
 
 import ru.practicum.shareit.booking.model.BookingState;
+import ru.practicum.shareit.constraints.StartBeforeEndDateValid;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.AppUserDto;
 
+import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+@StartBeforeEndDateValid
 public class BookingDto {
 
     private Long id;
 
     private AppUserDto booker;
 
+    @NotNull
     @FutureOrPresent
     private LocalDateTime start;
 
-    @FutureOrPresent
+    @NotNull
+    @Future
     private LocalDateTime end;
 
     private ItemDto item;
 
-//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long itemId;
 
     private BookingState status;

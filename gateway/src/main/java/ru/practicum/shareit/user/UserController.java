@@ -2,12 +2,13 @@ package ru.practicum.shareit.user;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.AppUserDto;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
 
+@Validated
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
@@ -18,25 +19,23 @@ public class UserController {
         this.userClient = userClient;
     }
 
-    @Transactional(readOnly = true)
     @GetMapping
     public ResponseEntity<Object> findAll() {
         return userClient.findAll();
     }
 
-    @Transactional(readOnly = true)
     @GetMapping("/{id}")
     public ResponseEntity<Object> findById(@PathVariable Long id) {
         return userClient.findById(id);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> create(@NotNull @RequestBody AppUserDto userDto) {
+    public ResponseEntity<Object> create(@Valid @RequestBody AppUserDto userDto) {
         return userClient.create(userDto);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable Long id, @NotNull @RequestBody AppUserDto userDto) {
+    public ResponseEntity<Object> update(@PathVariable Long id, @RequestBody AppUserDto userDto) {
         return userClient.update(id, userDto);
     }
 

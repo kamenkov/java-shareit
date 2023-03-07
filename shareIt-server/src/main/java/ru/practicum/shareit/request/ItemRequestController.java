@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -43,8 +42,8 @@ public class ItemRequestController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ItemRequestDto create(@NotNull @RequestBody ItemRequestDto itemRequestDto,
-                                 @NotNull @RequestHeader(X_LATER_USER_ID) long userId) {
+    public ItemRequestDto create(@RequestBody ItemRequestDto itemRequestDto,
+                                 @RequestHeader(X_LATER_USER_ID) long userId) {
         return itemRequestService.create(itemRequestDto, userId);
     }
 }

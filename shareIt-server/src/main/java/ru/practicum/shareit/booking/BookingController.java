@@ -4,7 +4,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -40,15 +39,15 @@ public class BookingController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public BookingDto create(@NotNull @RequestBody BookingDto bookingDto,
-                             @NotNull @RequestHeader(X_LATER_USER_ID) long bookerId) {
+    public BookingDto create(@RequestBody BookingDto bookingDto,
+                             @RequestHeader(X_LATER_USER_ID) long bookerId) {
         return bookingService.create(bookingDto, bookerId);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto approve(@PathVariable Long bookingId,
                               @RequestParam(name = "approved") Boolean isApproved,
-                              @NotNull @RequestHeader(X_LATER_USER_ID) long ownerId) {
+                              @RequestHeader(X_LATER_USER_ID) long ownerId) {
         return bookingService.approve(bookingId, isApproved, ownerId);
     }
 
